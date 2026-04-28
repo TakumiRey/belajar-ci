@@ -10,6 +10,8 @@ class AuthController extends BaseController
     function __construct()
     {
         helper('form');
+        // Set timezone agar waktu login sesuai dengan WIB
+        date_default_timezone_set('Asia/Jakarta'); 
     }
 
     public function login()
@@ -18,10 +20,9 @@ class AuthController extends BaseController
             $username = $this->request->getVar('username');
             $password = $this->request->getVar('password');
 
-            // Simpan semua user dalam satu array (multi-dimensi)
             $users = [
-                ['username' => 'raihan', 'password' => '202cb962ac59075b964b07152d234b70', 'role' => 'admin'],
-                ['username' => 'nana', 'password' => '202cb962ac59075b964b07152d234b70', 'role' => 'user']
+                ['username' => 'raihan', 'password' => '202cb962ac59075b964b07152d234b70', 'role' => 'admin', 'email' => 'raihanramadhanhamzah@gmail.com'],
+                ['username' => 'nana', 'password' => '202cb962ac59075b964b07152d234b70', 'role' => 'user', 'email' => 'nana@example.com'],
             ];
 
             $foundUser = null;
@@ -36,12 +37,17 @@ class AuthController extends BaseController
 
             if ($foundUser) {
                 if (md5($password) == $foundUser['password']) {
+                    // Simpan data lengkap ke session termasuk email dan waktu login
                     session()->set([
-                        'username'   => $foundUser['username'],
-                        'role'       => $foundUser['role'],
-                        'isLoggedIn' => TRUE
+                        'username'    => $foundUser['username'],
+                        'role'        => $foundUser['role'],
+                        'email'       => $foundUser['email'],
+                        'waktu_login' => date('Y-m-d H:i:s'), // Format tanggal dan waktu saat ini
+                        'isLoggedIn'  => TRUE
                     ]);
-                    return redirect()->to(base_url('/'));
+                    
+                    // Redirect ke halaman profile atau home setelah login sukses
+                    return redirect()->to(base_url('/profile')); // Ubah sesuai route kamu
                 } else {
                     session()->setFlashdata('failed', 'Username & Password Salah');
                     return redirect()->back();
